@@ -6,9 +6,11 @@ import Link from 'next/link';
 // 🌟 1. 核心升级：引入现代统一解析流 (和文章页保持绝对一致)
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
+import remarkMath from 'remark-math';
 import remarkRehype from 'remark-rehype';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeStringify from 'rehype-stringify';
+import rehypeKatex from 'rehype-katex';
 import 'highlight.js/styles/atom-one-dark.css';
 
 import Navbar from '../../components/Navbar';
@@ -30,10 +32,12 @@ export default async function AboutPage() {
     // 🌟 2. 启用全新解析引擎：支持代码高亮
     const processedContent = await unified()
       .use(remarkParse)
+      .use(remarkMath)
       .use(remarkRehype, { allowDangerousHtml: true })
       // 👇 魔法注释，直接无视 TypeScript 的类型强迫症
       // @ts-ignore
       .use(rehypeHighlight, { ignoreMissing: true })
+      .use(rehypeKatex)
       .use(rehypeStringify, { allowDangerousHtml: true })
       .process(content);
 

@@ -1,7 +1,7 @@
 {
-  "blogPath": "F:\\Test2\\XHBlogs",
-  "staticRepoUrl": "git@github.com:heiehiehi/XHSBlog.git",
+  "blogPath": "D:\\DEVC++\\XinghuisamaBlogs\\XHBlogs",
+  "staticRepoUrl": "",
   "staticBranch": "gh-pages",
-  "sourceRepoUrl": "git@github.com:heiehiehi/XHBlogS2.git",
+  "sourceRepoUrl": "",
   "sourceBranch": "main"
 }

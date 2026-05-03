@@ -6,9 +6,11 @@ import Link from 'next/link';
 // 🌟 核心升级：引入 Next.js 现代统一解析流
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
+import remarkMath from 'remark-math';
 import remarkRehype from 'remark-rehype';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeStringify from 'rehype-stringify';
+import rehypeKatex from 'rehype-katex';
 
 // 🌟 引入神仙代码高亮主题（Atom One Dark）
 import 'highlight.js/styles/atom-one-dark.css';
@@ -40,8 +42,10 @@ async function getChatterData(slug: string) {
   // 🌟 启用全新解析引擎：支持自动识别代码语言，并进行绚丽的语法高亮
   const processedContent = await unified()
     .use(remarkParse)
+    .use(remarkMath)
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeHighlight, { ignoreMissing: true })
+    .use(rehypeKatex)
     .use(rehypeStringify, { allowDangerousHtml: true })
     .process(content);
 
