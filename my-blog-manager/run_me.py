@@ -12,7 +12,8 @@ PYTHON_PACKAGES = {
     "requests": "requests",
     "yaml": "PyYAML",
     "markdown": "markdown",
-    "markdownify": "markdownify"
+    "markdownify": "markdownify",
+    "httpx": "httpx",
 }
 
 

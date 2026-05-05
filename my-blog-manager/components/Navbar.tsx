@@ -198,7 +198,11 @@ export default function Navbar() {
         <div className="w-[95%] max-w-7xl mx-auto h-16 flex items-center justify-between px-4 box-border">
 
           <Link href="/" className="text-xl font-black text-slate-800 dark:text-white tracking-tighter">
-            {siteConfig.authorName} <span className="text-indigo-500">の</span> 控制台
+            {siteConfig.navTitle}
+            <span className="text-indigo-500 mx-1">
+              {siteConfig.navSuffix || 'の'}
+            </span>
+            {siteConfig.navAfter}
           </Link>
 
           <div className="flex items-center gap-6">
