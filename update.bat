@@ -1,55 +1,41 @@
 @echo off
-chcp 65001 >nul
-title XingHuiSama 双端升级程序
+title XingHuiSama Update Tool
+color 0B
 
 echo ===================================================
+echo   XingHuiSama Blog Update Script
 echo ===================================================
 echo.
 
-:: 👇 新增防御 1：检查电脑是否安装了 Git
+:: 1. Check Git Environment
 git --version >nul 2>&1
 if %errorlevel% neq 0 (
-    echo ❌ 致命错误喵：你的电脑没有安装 Git！
-    echo 需要 Git 才能进行“外科手术”式精准更新。
-    echo 请前往 https://git-scm.com/ 下载安装 Git 后再重试。
-    echo.
+    echo [ERROR] Git is not installed! Please install Git first.
     pause
     exit /b
 )
 
-:: 👇 新增防御 2：如果是 ZIP 下载版，自动变身 Git 仓库！
+:: 2. Check Git Repo
 if not exist ".git" (
-    echo ⚠️ 检测到当前项目可能是 ZIP 下载包，缺少 Git 仓库环境。
-    echo 🪄 自动将其升级为 Git 仓库模式...
+    echo [INFO] Initializing Git environment...
     git init
     git remote add origin https://github.com/heiehiehi/XinghuisamaBlogs.git
-    echo ✅ 环境升级完成！
-    echo.
 )
 
-echo 📡 获取最新蓝图...
+echo [1/4] Connecting to GitHub...
 git fetch origin main
 if %errorlevel% neq 0 (
-    echo ❌ 网络连接失败喵，请检查你的网络环境。
+    echo [ERROR] Network error! Check your connection or Proxy.
     pause
     exit /b
 )
 
-echo.
-echo ⚙️ 正在执行核心文件精准替换，请不要关闭窗口...
-
-:: ==========================================================
-:: 📂 模块一：项目根目录文件 (总说明与更新脚本本身)
-:: ==========================================================
+echo [2/4] Updating core files...
+:: --- ATTENTION: No space after ^ ---
 git checkout origin/main -- ^
   LICENSE ^
   README.md ^
-  scripts/checkConfig.mjs
-
-:: ==========================================================
-:: 🎨 模块二：XHBlogs (前端展示端)
-:: ==========================================================
-git checkout origin/main -- ^
+  scripts/checkConfig.mjs ^
   XHBlogs/app/about/page.tsx ^
   XHBlogs/app/api ^
   XHBlogs/app/chatter ^
@@ -69,12 +55,7 @@ git checkout origin/main -- ^
   XHBlogs/package.json ^
   XHBlogs/package-lock.json ^
   XHBlogs/postcss.config.mjs ^
-  XHBlogs/tsconfig.json
-
-:: ==========================================================
-:: 🛠️ 模块三：my-blog-manager (后台管理端)
-:: ==========================================================
-git checkout origin/main -- ^
+  XHBlogs/tsconfig.json ^
   my-blog-manager/app/about/page.tsx ^
   my-blog-manager/app/admin ^
   my-blog-manager/app/api ^
@@ -104,32 +85,14 @@ git checkout origin/main -- ^
   my-blog-manager/Start.bat ^
   my-blog-manager/tsconfig.json
 
-if %errorlevel% neq 0 (
-    echo ⚠️ 警告喵：文件替换时出现异常，可能是你本地有严重的冲突。
-)
+echo [3/4] Installing dependencies...
+cd XHBlogs && call npm install && cd ..
+cd my-blog-manager && call npm install && cd ..
 
-echo.
-echo 📦 [1/2] 正在同步 XHBlogs 的依赖包...
-cd XHBlogs
-call npm install
-cd ..
-
-echo.
-echo 📦 [2/2] 正在同步 my-blog-manager 的依赖包...
-cd my-blog-manager
-call npm install
-cd ..
-
-echo.
-echo ===================================================
-echo 🛠️ 正在扫描并智能修补 siteConfig 配置文件...
-echo ===================================================
+echo [4/4] Patching siteConfig...
 node scripts/checkConfig.mjs
 
-echo.
 echo ===================================================
-echo ✨ 喵！双端引擎升级完毕！你的私有数据完好无损！
-echo 🚀 现在可以去启动你的项目了！
+echo   Update Successful!
 echo ===================================================
-echo.
 pause
