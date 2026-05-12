@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import BackButton from '../../components/BackButton';
 import { friendsData } from '../../data/friends';
 import Comments from '../../components/Comments'; // 🌟 引入你的 Gitalk 组件
+import { siteConfig } from '../../siteConfig'; // 🌟 引入刚刚更新的全局配置文件
 
 // Framer Motion 动画变体：交错子元素
 const containerVariants = {
@@ -24,8 +25,8 @@ export default function FriendsBoard() {
   // 🌟 控制复制按钮的状态
   const [isCopied, setIsCopied] = useState(false);
 
-  // 预设的申请格式
-  const applyFormat = `名称：XingHuiSamaの宝藏之地\n简介：今天我也要学习吗\n链接：https://www.xinghuisama.top\n头像：https://bu.dusays.com/2026/03/24/69c1e38ac1846.jpg`;
+  // 🌟 直接从 siteConfig 读取申请格式
+  const applyFormat = siteConfig.friendLinkApplyFormat;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(applyFormat);
@@ -34,7 +35,6 @@ export default function FriendsBoard() {
   };
 
   return (
-    // 🌟 核心修改：缩紧手机端外层容器的内边距 px-4 sm:px-10
     <div className="w-full max-w-5xl mx-auto px-3 sm:px-10 py-6 md:py-10 relative z-10 scroll-smooth mt-20 md:mt-10">
 
       {/* 顶部导航与标题 */}
@@ -52,7 +52,6 @@ export default function FriendsBoard() {
         </div>
       </div>
 
-      {/* 🌟 核心修改 1：手机端强制双列 (grid-cols-2) 并缩紧间隙 (gap-3) */}
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -65,7 +64,6 @@ export default function FriendsBoard() {
               href={friend.url}
               target="_blank"
               rel="noopener noreferrer"
-              // 🌟 核心修改 2：卡片 padding 缩小，圆角缩小
               className="block h-full rounded-2xl md:rounded-3xl bg-white/60 dark:bg-slate-800/50 backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-lg md:shadow-xl overflow-hidden transition-all duration-500 hover:-translate-y-1 md:hover:-translate-y-2 hover:scale-[1.02] group relative p-3 md:p-6"
             >
               {/* 卡片底部的动态光晕 */}
@@ -74,16 +72,13 @@ export default function FriendsBoard() {
                 style={{ backgroundColor: friend.themeColor }}
               ></div>
 
-              {/* 🌟 核心修改 3：头像与文字区的间距缩减，防止拥挤 */}
               <div className="flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-5 relative z-10 mb-2 md:mb-4">
 
-                {/* 🌟 核心修改 4：头像在手机端极致缩小 w-10 h-10 */}
                 <div className="w-10 h-10 md:w-16 md:h-16 rounded-full p-[2px] md:p-1 bg-gradient-to-tr from-indigo-500/50 to-purple-500/50 shadow-sm md:shadow-md group-hover:rotate-[360deg] transition-transform duration-1000 ease-in-out flex-shrink-0">
                   <img src={friend.avatar} alt={friend.name} className="w-full h-full rounded-full object-cover bg-white" />
                 </div>
 
                 <div className="flex-1 overflow-hidden w-full">
-                  {/* 🌟 核心修改 5：标题字体缩小 */}
                   <h2 className="text-sm md:text-xl font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors truncate">
                     {friend.name}
                   </h2>
@@ -94,7 +89,6 @@ export default function FriendsBoard() {
                 </div>
               </div>
 
-              {/* 🌟 核心修改 6：简介文字极度压缩 text-[10px] */}
               <p className="text-[10px] md:text-sm text-slate-700 dark:text-slate-300 font-serif leading-snug md:leading-relaxed line-clamp-2 md:line-clamp-3 relative z-10">
                 {friend.description}
               </p>
@@ -109,7 +103,6 @@ export default function FriendsBoard() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6, delay: 0.2 }}
-        // 🌟 核心修改：缩紧 padding p-5
         className="mt-14 md:mt-20 bg-white/40 dark:bg-slate-800/40 backdrop-blur-xl border border-white/50 dark:border-slate-700/50 rounded-2xl md:rounded-3xl p-5 md:p-8 max-w-3xl mx-auto text-center shadow-lg md:shadow-xl relative"
       >
         <h2 className="text-lg md:text-2xl font-black text-slate-900 dark:text-white mb-2 md:mb-4 tracking-wider">
@@ -121,7 +114,6 @@ export default function FriendsBoard() {
 
         {/* 代码展示框 & 一键复制按钮 */}
         <div className="relative bg-slate-100/60 dark:bg-slate-900/60 rounded-xl md:rounded-2xl p-4 md:p-5 text-left inline-block w-full max-w-md border border-slate-200/50 dark:border-slate-700/50 group overflow-hidden">
-          {/* 🌟 代码字体微缩，允许换行防溢出 */}
           <pre className="font-mono text-[10px] md:text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap break-all pr-8 md:pr-10">
             {applyFormat}
           </pre>

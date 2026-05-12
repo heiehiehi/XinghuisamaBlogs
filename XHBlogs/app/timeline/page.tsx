@@ -8,6 +8,10 @@ import TimelineClient from '../../components/TimelineClient';
 // 🌟 1. 引入 ToastProvider 喵！
 import { ToastProvider } from '../../components/ToastProvider';
 
+export const metadata = {
+  title: "归档与探索 | " + siteConfig.title,
+};
+
 export default function Timeline() {
   const postsDirectory = path.join(process.cwd(), 'posts');
   let posts: any[] = [];

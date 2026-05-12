@@ -7,7 +7,7 @@ import ChatterBoard from './ChatterBoard';
 
 
 export const metadata = {
-  title: "杂谈 | XingHuiSama の 博客",
+  title: "杂谈 | "+ siteConfig.title,
   description: "日常碎片与灵感记录",
 };
 

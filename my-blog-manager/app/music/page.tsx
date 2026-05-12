@@ -36,7 +36,7 @@ export default function MusicPage() {
 
     // 提取歌词文本（全兼容模式）
     const rawLrc = currentSong.lrc || currentSong.lyric || (typeof currentSong.lyrics === 'string' ? currentSong.lyrics : '');
-    
+
     // 如果已经有结构化数组了（部分 API 会直接给数组）
     if (Array.isArray(currentSong.lyrics) && currentSong.lyrics.length > 0) {
       setParsedLyrics(currentSong.lyrics);
@@ -74,7 +74,7 @@ export default function MusicPage() {
       // 兜底：如果没有时间戳，也作为列表显示
       setParsedLyrics(lines.map(l => ({ time: -1, text: l.trim() })).filter(l => l.text));
     }
-    
+
     // 监听：歌曲ID、歌词文本、以及所有可能的歌词字段
   }, [currentSong?.id, currentSong?.lyric, currentSong?.lrc, currentSong?.lyrics]);
 

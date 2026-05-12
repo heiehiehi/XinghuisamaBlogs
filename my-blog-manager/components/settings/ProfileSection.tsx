@@ -79,13 +79,13 @@ export default function ProfileSection({ formData, handleUpdate, pushToQueue }: 
                 </div>
               </div>
 
-              {/* 👇 🌟 新增：网站总标题 Title */}
+              {/* 网站总标题 Title */}
               <div className="col-span-1 md:col-span-2">
                 <label className="text-[10px] font-black text-slate-400 uppercase ml-1">网站总标题 (Browser Title)</label>
                 <input type="text" value={safeData.title || ''} onChange={e => handleUpdate('title', e.target.value)} placeholder="例如: XingHuiSama の 宝藏之地" className="w-full bg-white/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm mt-1 outline-none font-bold focus:ring-2 focus:ring-indigo-500" />
               </div>
 
-              {/* 🌟 网页图标 Favicon */}
+              {/* 网页图标 Favicon */}
               <div className="col-span-1 md:col-span-2">
                 <label className="text-[10px] font-black text-slate-400 uppercase ml-1 flex justify-between">
                   <span>网页标签小图标 (Favicon)</span>
@@ -146,6 +146,19 @@ export default function ProfileSection({ formData, handleUpdate, pushToQueue }: 
                   <input type="text" value={safeSocial.gitee || ''} onChange={e => handleSocialUpdate('gitee', e.target.value)} className="w-full bg-white/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm mt-1 outline-none" />
                 </div>
               </div>
+
+              {/* 👇 🌟 新增：友链申请模板配置区域 */}
+              <div className="col-span-1 md:col-span-2 pt-4 border-t border-slate-200 dark:border-slate-700/50">
+                <label className="text-[10px] font-black text-slate-400 uppercase ml-1">友链申请模板 (friendLinkApplyFormat)</label>
+                <textarea
+                  rows={4}
+                  value={safeData.friendLinkApplyFormat || ''}
+                  onChange={e => handleUpdate('friendLinkApplyFormat', e.target.value)}
+                  placeholder="名称：XingHuiSamaの宝藏之地\n简介：今天我也要学习吗\n链接：https://www.xinghuisama.top\n头像：..."
+                  className="w-full bg-white/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm mt-1 outline-none resize-none focus:ring-2 focus:ring-indigo-500 font-mono"
+                />
+              </div>
+
             </div>
 
             <button onClick={handleSaveAll} className="px-10 py-3 bg-indigo-500 text-white rounded-2xl text-sm font-black shadow-xl hover:bg-indigo-600 transition-all active:scale-95 w-full md:w-auto">

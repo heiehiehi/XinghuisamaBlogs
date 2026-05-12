@@ -28,9 +28,14 @@ const notoSerif = Noto_Serif_SC({
   display: 'swap',
 });
 
+// 👇 🌟 核心修改区：让 Next.js 动态读取你的 siteConfig
 export const metadata: Metadata = {
-  title: "XingHuiSama の 博客",
-  description: "在代码、学术与提瓦特大陆间穿梭的旅人",
+  title: siteConfig.title,          // 浏览器标签页显示的标题
+  description: siteConfig.bio,      // 网站描述（利于 SEO 搜索）
+  icons: {
+    icon: siteConfig.faviconUrl,    // 浏览器标签页的小图标
+    apple: siteConfig.faviconUrl,   // 苹果设备保存到桌面的图标
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

@@ -59,7 +59,7 @@ async function getPostData(slug: string) {
     .use(remarkParse)
     .use(remarkMath)
     .use(remarkRehype, { allowDangerousHtml: true })
-    .use(rehypeHighlight, { ignoreMissing: true })
+    .use(rehypeHighlight, { detect: true, ignoreMissing: true })
     .use(rehypeKatex)
     .use(rehypeStringify, { allowDangerousHtml: true })
     .process(content);
@@ -104,7 +104,6 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
               <img src={postData.cover} alt="封面" className="w-full h-full object-cover opacity-90 transition-transform duration-1000 group-hover:scale-105" />
             </div>
 
-            {/* 🌟 减少手机端的内边距 p-5 md:p-12 */}
             <div className="p-5 md:p-12 relative">
               <BackButton />
 
@@ -127,7 +126,6 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
                 </div>
               </header>
 
-              {/* 🌟 核心修复区：响应式排版魔法注入！ */}
               <div className="relative">
                 <style>{`
                   /* 1. 默认状态（手机端：精致小巧） */
@@ -137,20 +135,42 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
                   .prose p { font-size: 0.95rem !important; line-height: 1.75 !important; color: inherit !important; }
                   .prose ul, .prose ol { padding-left: 1.2rem !important; font-size: 0.95rem !important; }
                   
-                  /* 手机端代码块与图片调整 */
+                  /* 代码块结构调整 */
                   .prose pre {
                     background-color: #282c34 !important; color: #abb2bf !important;
                     padding: 1rem !important; border-radius: 0.75rem !important;
                     overflow-x: auto !important; box-shadow: inset 0 0 10px rgba(0,0,0,0.3) !important;
                     margin-top: 1rem !important; margin-bottom: 1rem !important;
                   }
-                  .prose pre code { background-color: transparent !important; padding: 0 !important; color: inherit !important; font-size: 0.85em !important; font-family: ui-monospace, SFMono-Regular, monospace !important; }
+                  
+                  /* 🌟 核心修复 3：顶级极客字体链注入，极致圆润，带代码连字特效！ */
+                  .prose pre code, .prose p code, .prose li code { 
+                    font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, ui-monospace, monospace !important; 
+                    font-variant-ligatures: contextual !important; 
+                  }
+                  .prose pre code { 
+                    background-color: transparent !important; 
+                    padding: 0 !important; 
+                    color: inherit !important; 
+                    font-size: 0.85em !important; 
+                  }
+                  
                   .prose code::before, .prose code::after { content: none !important; }
                   .prose p code, .prose li code { background-color: rgba(99, 102, 241, 0.1) !important; color: #6366f1 !important; padding: 0.1rem 0.3rem !important; border-radius: 0.25rem !important; font-weight: 600 !important; font-size: 0.85em !important; }
                   .dark .prose p code, .dark .prose li code { background-color: rgba(99, 102, 241, 0.2) !important; color: #818cf8 !important; }
                   .prose img { display: block !important; margin: 1.5rem auto !important; border-radius: 1rem !important; box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important; max-width: 100% !important; height: auto !important; }
 
-                  /* 2. 平板与桌面端状态（md >= 768px：霸气极客风回归！） */
+                  /* 🌟 核心修复 2：将 Atom One Dark 极客主题硬核注入，暴力覆盖 Tailwind 的同化！ */
+                  .prose pre code .hljs-comment, .prose pre code .hljs-quote { color: #5c6370 !important; font-style: italic !important; }
+                  .prose pre code .hljs-doctag, .prose pre code .hljs-keyword, .prose pre code .hljs-formula { color: #c678dd !important; }
+                  .prose pre code .hljs-section, .prose pre code .hljs-name, .prose pre code .hljs-selector-tag, .prose pre code .hljs-deletion, .prose pre code .hljs-subst { color: #e06c75 !important; }
+                  .prose pre code .hljs-literal { color: #56b6c2 !important; }
+                  .prose pre code .hljs-string, .prose pre code .hljs-regexp, .prose pre code .hljs-addition, .prose pre code .hljs-attribute, .prose pre code .hljs-meta-string { color: #98c379 !important; }
+                  .prose pre code .hljs-built_in, .prose pre code .hljs-class .hljs-title { color: #e6c07b !important; }
+                  .prose pre code .hljs-attr, .prose pre code .hljs-variable, .prose pre code .hljs-template-variable, .prose pre code .hljs-type, .prose pre code .hljs-selector-class, .prose pre code .hljs-selector-attr, .prose pre code .hljs-selector-pseudo, .prose pre code .hljs-number { color: #d19a66 !important; }
+                  .prose pre code .hljs-symbol, .prose pre code .hljs-bullet, .prose pre code .hljs-link, .prose pre code .hljs-meta, .prose pre code .hljs-selector-id, .prose pre code .hljs-title { color: #61aeee !important; }
+
+                  /* 2. 平板与桌面端状态 */
                   @media (min-width: 768px) {
                     .prose h1 { font-size: 3rem !important; font-weight: 950 !important; margin-bottom: 2rem !important; margin-top: 3rem !important; line-height: 1.1 !important; }
                     .prose h2 { font-size: 2.2rem !important; margin-bottom: 1.5rem !important; margin-top: 2rem !important; }
@@ -164,7 +184,6 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
                   }
                 `}</style>
 
-                {/* 🌟 核心修改：使用 prose-base 作为手机端基准，md:prose-lg 放给桌面端 */}
                 <div
                   id="article-content"
                   className="prose prose-slate dark:prose-invert prose-base md:prose-lg max-w-none text-slate-800 dark:text-slate-200 transition-colors duration-700 scroll-smooth"
@@ -179,7 +198,6 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
             </div>
           </article>
 
-          {/* 侧边栏 */}
           <aside className="w-full lg:w-[320px] flex flex-col gap-6 flex-shrink-0">
             <div className="bg-white/60 dark:bg-slate-800/50 backdrop-blur-xl rounded-3xl p-6 border border-white/40 dark:border-white/10 shadow-xl text-center">
               <div className="w-20 h-20 mx-auto rounded-full p-1 bg-gradient-to-tr from-indigo-500 to-purple-500 shadow-md mb-4 transition-transform duration-500 hover:rotate-3">
