@@ -308,11 +308,13 @@ XHBLogs 还有诸多隐藏的细节功能，期待极客朋友们在实际使用
 
 **如果你觉得这个项目对你有帮助，请务必在 GitHub 上为我点亮一颗 ⭐ Star！每一颗星都是博主持续维护更新的最大动力。谢谢大家！**
 
+## 许可证
+
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
 
 > 本项目采用 [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/) 许可协议。允许免费学习、分享和二次修改后发布（二次开源发布需提及原作者），但**严禁用于任何商业用途**。
 
-### 更新内容 (版本0.1.1)
+## 之前更新日志 (版本0.1.1)
 
 #### 1. 标题页与图标更新
 
