@@ -6,8 +6,9 @@
 
 ---
 ## 语言
-[![English](https://img.shields.io/badge/Language-English-blue.svg)](README_en.md)
-[![中文](https://img.shields.io/badge/语言-中文-red.svg)](README.md)
+
+[![English](https://img.shields.io/badge/Language-English-blue.svg)](https://github.com/xinghuisama/XinghuisamaBlogs/blob/main/README_en.md)
+[![中文](https://img.shields.io/badge/语言-中文-red.svg)](https://github.com/xinghuisama/XinghuisamaBlogs/blob/main/README.md)
 
 ## 写在前面
 
