@@ -8,8 +8,8 @@ This guide will take you from scratch to deploy and use XHBlogs.
 
 ## Language
 
-[![English](https://img.shields.io/badge/Language-English-blue.svg)](https://github.com/xinghuisama/XinghuisamaBlogs/blob/main/README_en.md)
-[![中文](https://img.shields.io/badge/语言-中文-red.svg)](https://github.com/xinghuisama/XinghuisamaBlogs/blob/main/README.md)
+[![English](https://img.shields.io/badge/Language-English-blue.svg)](README_en.md)
+[![中文](https://img.shields.io/badge/语言-中文-red.svg)](README.md)
 
 ## Preface
 
