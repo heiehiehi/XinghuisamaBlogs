@@ -59,7 +59,19 @@
 
 ![img.png](picture/333.png)
 
-#### 3 双击update.bat文件实现更新，如果闪退 请使用cmd运行update.py文件
+#### 3 Windows 用户双击 `update.bat` 文件实现更新；如果闪退，请先打开 CMD，再运行 `python update.py` 查看完整错误信息。
+
+#### 4 Linux / macOS 用户请直接运行 Python 更新器
+
+服务器、Linux 桌面或 macOS 环境通常无法直接使用 `.bat` 脚本，请在项目根目录运行：
+
+```bash
+python3 update.py
+```
+
+如果后台控制台需要在 Linux 服务器中启动，建议先确认是否真的需要图形窗口。`pywebview` 依赖 GTK / QT 与 WebKit2；纯服务器环境缺少这些库时会出现 `GTK cannot be loaded` 或 `WebKit2 not available`。这种情况下可以优先使用前端部署与命令行更新流程，或在具备桌面环境的机器上运行本地后台。
+
+如果提示已有 Next.js 开发服务正在运行，请先根据终端提示停止旧进程，再重新启动。
 
 ### 3. 快速开始
 
