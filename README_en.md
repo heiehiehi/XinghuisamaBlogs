@@ -67,7 +67,19 @@ Step 1: Obtain the lossless updater (only required for the first time)
 As shown below:
 
 
-#### 3. Double-click the update.bat file to update. If it crashes, please run the update.py file using CMD.
+#### 3. Windows users can double-click `update.bat` to update. If the window closes immediately, open CMD first and run `python update.py` to keep the full error output visible.
+
+#### 4. Linux / macOS users should run the Python updater directly
+
+`.bat` scripts are Windows-only. On Linux servers, Linux desktops, or macOS, run the updater from the project root:
+
+```bash
+python3 update.py
+```
+
+If you need to launch the local manager on Linux, first confirm that you actually need a graphical window. `pywebview` depends on GTK / QT and WebKit2; headless servers may report `GTK cannot be loaded` or `WebKit2 not available`. In that case, prefer the frontend deployment and command-line update flow, or run the local manager on a machine with a desktop environment.
+
+If Next.js reports that another development server is already running, stop the old process shown in the terminal output and then start again.
 
 ### 3. Quick Start
 
