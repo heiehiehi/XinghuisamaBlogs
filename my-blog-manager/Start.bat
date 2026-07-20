@@ -1,55 +1,42 @@
 @echo off
-chcp 65001 >nul 2>&1  :: 解决中文乱码问题
+setlocal EnableExtensions
+chcp 65001 >nul
 cd /d "%~dp0"
 
+echo [信息] 脚本所在目录：%~dp0
+echo [信息] 正在检测 Python 环境...
 
-echo [调试] 脚本所在目录：%~dp0
-echo [调试] 开始检测Python环境...
+set "PYTHON_CMD="
 
-:: 1. 优先尝试 py -3.10（兼容多Python版本）
-py -3.10 --version >nul 2>&1
-if %errorlevel% equ 0 (
-    echo [状态] 正在调用 Python 3.10 环境...
-    py -3.10 run_me.py
-    if %errorlevel% neq 0 (
-        echo ❌ 错误：Python 3.10 执行 run_me.py 失败！
-        pause
-        exit /b 1
-    )
-    goto end
+rem 优先使用 Windows Python Launcher 指定 Python 3.10+
+py -3.10 --version >nul 2>nul
+if not errorlevel 1 set "PYTHON_CMD=py -3.10"
+
+rem 如果没有 py -3.10，则检查默认 python 是否可用且版本满足 3.10+
+if not defined PYTHON_CMD (
+    python -c "import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)" >nul 2>nul
+    if not errorlevel 1 set "PYTHON_CMD=python"
 )
 
-:: 2. 尝试直接调用 python（检测是否是3.10+）
-python --version >nul 2>&1
-if %errorlevel% equ 0 (
-    :: 额外检测Python版本是否≥3.10
-    for /f "tokens=2 delims=." %%i in ('python --version 2^>^&1') do set "py_major=%%i"
-    for /f "tokens=3 delims=. " %%j in ('python --version 2^>^&1') do set "py_minor=%%j"
-    if %py_major% equ 3 if %py_minor% geq 10 (
-        echo [状态] 正在调用默认 Python 3.10+ 环境...
-        python run_me.py
-        if %errorlevel% neq 0 (
-            echo ❌ 错误：默认Python执行 run_me.py 失败！
-            pause
-            exit /b 1
-        )
-        goto end
-    ) else (
-        echo ❌ 错误：默认Python版本不是3.10！当前版本：
-        python --version
-        pause
-        exit /b 1
-    )
+if not defined PYTHON_CMD (
+    echo [错误] 未找到可用的 Python 3.10 或以上版本。
+    echo [排查] 请安装 Python 3.10+，并在安装时勾选 Add Python to PATH。
+    echo [排查] 如果已安装多个 Python 版本，可尝试安装/修复 Python Launcher 后重试。
+    pause
+    exit /b 1
 )
 
-:: 3. 兜底：未找到Python环境
-echo ❌ 错误：未找到 Python 3.10 环境，请确保已安装并添加到系统PATH！
-echo 🔍 排查步骤：
-echo    1. 确认安装Python 3.10（官网：https://www.python.org/downloads/release/python-3100/）
-echo    2. 安装时勾选 "Add Python 3.10 to PATH"
-echo    3. 重启命令行/电脑后重试
+echo [状态] 使用命令：%PYTHON_CMD%
+%PYTHON_CMD% run_me.py
+set "EXIT_CODE=%errorlevel%"
+
+if not "%EXIT_CODE%"=="0" (
+    echo [错误] run_me.py 执行失败，退出码：%EXIT_CODE%
+    echo [提示] 请保留当前窗口内容，并复制上方错误信息到 GitHub issue。
+    pause
+    exit /b %EXIT_CODE%
+)
+
+echo [完成] 程序执行完成。
 pause
-
-:end
-echo ✅ 程序执行完成
 exit /b 0
