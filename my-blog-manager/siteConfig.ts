@@ -76,4 +76,26 @@ export const siteConfig = {
   },
   friendLinkApplyFormat: "名称：XingHuiSamaの宝藏之地\n简介：今天我也要学习吗\n链接：https://www.xinghuisama.top\n头像：https://bu.dusays.com/2026/03/24/69c1e38ac1846.jpg",
   enableLevelSystem: true,
+
+  // 🐈 原有煤球开关（由「设置 → 宠物管理」控制）
+  cyberCatEnabled: true,
+
+  // 🐾 独立宠物层（素材来自 dsh-pet，CC BY-NC-SA 4.0）
+  // 由「设置 → 宠物管理」维护，同步 Blog 后会覆盖到前台 XHBlogs
+  petsConfig: [
+    {
+      id: "whale-1",
+      name: "大肥鱼",
+      enabled: true,
+      size: 220,
+      corner: "bottom-left",
+      offsetX: 24,
+      offsetY: 16,
+      chatEnabled: true,
+      whisperEnabled: false,
+      whisperIntervalSec: 300,
+      todoEnabled: true,
+      persona: "你是主人博客网页上的Q版蓝发小女仆，说话自然随意、简短，温柔乖巧带点俏皮。不啰嗦，不解释自己，不要提你是AI。",
+    },
+  ],
 };

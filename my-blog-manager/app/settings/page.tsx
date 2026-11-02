@@ -18,8 +18,7 @@ import DisplaySection from '../../components/settings/DisplaySection';
 import CommentSection from '../../components/settings/CommentSection';
 import DanmakuSection from '../../components/settings/DanmakuSection';
 import FooterSection from '../../components/settings/FooterSection';
-// 👇 🌟 引入刚写的 AI 配置组件
-import AICatSection from '../../components/settings/AICatSection';
+import PetSection from '../../components/settings/PetSection';
 
 function SettingsContent() {
   const { operations, addOperation } = useOperations();
@@ -30,7 +29,7 @@ function SettingsContent() {
   useEffect(() => {
     const readTab = () => {
       const tab = new URLSearchParams(window.location.search).get('tab');
-      if (tab && ['profile', 'display', 'background', 'music', 'gallery', 'footer', 'danmaku', 'comment', 'aicat', 'repo', 'briefing'].includes(tab)) {
+      if (tab && ['profile', 'display', 'background', 'music', 'gallery', 'footer', 'danmaku', 'comment', 'pets', 'repo', 'briefing'].includes(tab)) {
         setActiveTab(tab);
         if (tab === 'briefing') setBriefingVisited(true);
       }
@@ -75,7 +74,13 @@ function SettingsContent() {
       systemPrompt: '',
       maxOutputTokens: 150,
       temperature: 0.85
-    }
+    },
+    // 🐾 独立宠物层
+    petsConfig: Array.isArray((siteConfig as any).petsConfig)
+      ? (siteConfig as any).petsConfig.map((pet: any) => ({ ...pet }))
+      : [],
+    // 🐈 原有煤球开关
+    cyberCatEnabled: siteConfig.cyberCatEnabled !== false
   });
 
   const [queryLoading, setQueryLoading] = useState(false);
@@ -112,7 +117,14 @@ function SettingsContent() {
             icpConfig: data.data.icpConfig || prev.icpConfig,
             footerBadges: data.data.footerBadges ? [...data.data.footerBadges] : prev.footerBadges,
             // 👇 🌟 合并后端发来的小猫配置
-            geminiConfig: { ...(prev.geminiConfig || {}), ...(data.data.geminiConfig || {}) }
+            geminiConfig: { ...(prev.geminiConfig || {}), ...(data.data.geminiConfig || {}) },
+            // 🐾 宠物列表用数组整体替换，允许用户删到空列表
+            petsConfig: Array.isArray(data.data.petsConfig) ? data.data.petsConfig : prev.petsConfig,
+            // 🐈 煤球开关
+            cyberCatEnabled:
+              typeof data.data.cyberCatEnabled === 'boolean'
+                ? data.data.cyberCatEnabled
+                : prev.cyberCatEnabled
           }));
           setBackendMode('live');
         } else {
@@ -230,7 +242,7 @@ function SettingsContent() {
     { id: 'footer', name: '首页底部设置', icon: '🧩' },
     { id: 'danmaku', name: '全站弹幕设置', icon: '⚡' },
     { id: 'comment', name: '评论系统配置', icon: '💬' },
-    { id: 'aicat', name: 'AI 煤球配置', icon: '🐾' }, // 👈 新增的小猫设置
+    { id: 'pets', name: '宠物管理', icon: '🐋' },
     { id: 'repo', name: '项目仓库设置', icon: '🚀' },
   ];
 
@@ -275,8 +287,8 @@ function SettingsContent() {
               {activeTab === 'footer' && <FooterSection key="footer" formData={formData} handleUpdate={handleUpdate} pushToQueue={pushToQueue} />}
               {activeTab === 'danmaku' && <DanmakuSection key="danmaku" formData={formData} handleUpdate={handleUpdate} pushToQueue={pushToQueue} />}
               {activeTab === 'comment' && <CommentSection key="comment" formData={formData} handleUpdate={handleUpdate} pushToQueue={pushToQueue} />}
-              {/* 👇 🌟 挂载 AI 猫咪面板 */}
-              {activeTab === 'aicat' && <AICatSection key="aicat" formData={formData} handleUpdate={handleUpdate} pushToQueue={pushToQueue} />}
+              {/* 🐾 宠物管理（含共用 AI 性格调度中心） */}
+              {activeTab === 'pets' && <PetSection key="pets" formData={formData} handleUpdate={handleUpdate} pushToQueue={pushToQueue} />}
 
               {activeTab === 'repo' && backendMode === 'live' && <RepoSection key="repo" />}
             </AnimatePresence>

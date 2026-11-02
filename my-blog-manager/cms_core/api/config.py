@@ -170,6 +170,17 @@ def get_site_config():
                     pass
                 root_content = root_content.replace(span, '', 1)
 
+        # 1.6 🐾 宠物列表：同样是「对象数组」，需要括号平衡解析，避免内部数字/布尔被通用正则漏掉
+        pets_start = re.search(r'petsConfig\s*:\s*\[', root_content)
+        if pets_start:
+            span = extract_balanced_array(root_content, pets_start.end() - 1)
+            if span:
+                try:
+                    parsed_config['petsConfig'] = json.loads(strip_trailing_commas(span))
+                except Exception:
+                    pass
+                root_content = root_content.replace(span, '', 1)
+
         # 2. 🌟 核心升级：提取外层基础变量（现在支持 字符串、布尔值、数字！）
         for match in re.finditer(r'([a-zA-Z0-9_]+)\s*:\s*(?:(["\'])([\s\S]*?)\2|(true|false|\d+))', root_content):
             key = match.group(1)
@@ -217,7 +228,9 @@ def update_site_config(payload: Dict[str, Any] = Body(...)):
         "friendLinkApplyFormat",
         "enableLevelSystem", # 👈 你加的字段在这里，完美！
         "bgGroups",       # 👈 🌟 壁纸分组系统
-        "activeBgGroup"   # 👈 🌟 当前启用的分组 id
+        "activeBgGroup",  # 👈 🌟 当前启用的分组 id
+        "petsConfig",      # 👈 🐾 独立宠物层配置
+        "cyberCatEnabled"  # 👈 🐈 原有煤球开关
     }
 
     try:
@@ -262,15 +275,15 @@ def update_site_config(payload: Dict[str, Any] = Body(...)):
                     updated_count += 1
                 continue
 
-            # 专属通道 2：壁纸分组（数组内嵌 images 数组，非贪婪正则会截断，必须括号平衡替换）
-            if key == "bgGroups":
+            # 专属通道 2：对象数组字段（壁纸分组 / 宠物列表），非贪婪正则会截断，必须括号平衡替换
+            if key in ("bgGroups", "petsConfig"):
                 val_str = json.dumps(value, ensure_ascii=False)
-                m = re.search(r'bgGroups\s*:\s*\[', content)
+                m = re.search(rf'{key}\s*:\s*\[', content)
                 if m:
                     span = extract_balanced_array(content, m.end() - 1)
                     if span:
                         content = content.replace(span, val_str, 1)
-                        print(f"  ✅ 成功修改并落盘(壁纸分组专列) -> [{key}]")
+                        print(f"  ✅ 成功修改并落盘(数组专列) -> [{key}]")
                         updated_count += 1
                 else:
                     content = insert_config_field(content, key, val_str)

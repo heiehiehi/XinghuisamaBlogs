@@ -7,7 +7,31 @@ export async function POST(req: Request) {
   console.log("🚀 [1/5] 路由进入：开始对接 Gemini 3 脑回路");
 
   try {
-    const { message } = await req.json();
+    const { message, systemPrompt, history } = await req.json();
+    const text = String(message ?? '').trim();
+
+    if (!text) {
+      return new Response(JSON.stringify({ error: 'Empty message' }), { status: 400 });
+    }
+
+    // 允许宠物传入自己的人设；没传就继续用全站默认的煤球人设。
+    const systemText =
+      typeof systemPrompt === 'string' && systemPrompt.trim()
+        ? systemPrompt.trim()
+        : siteConfig.geminiConfig.systemPrompt;
+
+    // 把最近几轮对话转成 Gemini 的 contents；旧客户端不传 history，行为不变。
+    const pastMessages = Array.isArray(history)
+      ? history
+          .filter((item: any) => item && typeof item.content === 'string' && item.content.trim())
+          .slice(-10)
+          .map((item: any) => ({
+            role: item.role === 'assistant' ? 'model' : 'user',
+            parts: [{ text: item.content }],
+          }))
+      : [];
+
+    const contents = [...pastMessages, { role: 'user', parts: [{ text }] }];
 
     // 🌟 纯粹靠环境变量读取 API Key
     const apiKey = (process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY || '').trim();
@@ -29,12 +53,10 @@ export async function POST(req: Request) {
       body: JSON.stringify({
         system_instruction: {
           parts: [{
-            text: siteConfig.geminiConfig.systemPrompt
+            text: systemText
           }]
         },
-        contents: [{
-          parts: [{ text: message }]
-        }],
+        contents,
         generationConfig: {
           maxOutputTokens: siteConfig.geminiConfig.maxOutputTokens,
           temperature: siteConfig.geminiConfig.temperature,

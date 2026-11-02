@@ -12,6 +12,25 @@ export default function CyberCat() {
 
   const chatTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // --- 🖱️ 拖动状态（自己处理指针事件，避免和点击互动冲突） ---
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const outerRef = useRef<HTMLDivElement | null>(null);
+  const dragOffsetRef = useRef({ x: 0, y: 0 });
+  const dragStateRef = useRef<{
+    pointerId: number;
+    startX: number;
+    startY: number;
+    startLeft: number;
+    startTop: number;
+    baseX: number;
+    baseY: number;
+    width: number;
+    height: number;
+    moved: boolean;
+  } | null>(null);
+  const isDraggingRef = useRef(false);
+
   // --- 💬 说话功能 ---
   const speak = (text: string, duration = 6000) => {
     setSpeech(text);
@@ -23,7 +42,7 @@ export default function CyberCat() {
 
   // --- 🖱️ 交互事件：摸猫猫 ---
   const handlePetCat = () => {
-    if (isPetted) return;
+    if (isDraggingRef.current || isPetted) return;
     setIsPetted(true);
     speak("呼噜噜... 摸得本喵很舒服喵~", 2000);
     setTimeout(() => {
@@ -106,14 +125,111 @@ export default function CyberCat() {
     return () => clearInterval(randomTalkInterval);
   }, [speech, showInput, isThinking]);
 
+  const handleDragPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (event.button !== 0) return;
+    const outer = outerRef.current;
+    if (!outer) return;
+
+    const rect = outer.getBoundingClientRect();
+    const offset = dragOffsetRef.current;
+    dragStateRef.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      baseX: rect.left - offset.x,
+      baseY: rect.top - offset.y,
+      width: rect.width,
+      height: rect.height,
+      moved: false,
+    };
+    setIsDragging(true);
+
+    try {
+      event.currentTarget.setPointerCapture?.(event.pointerId);
+    } catch {
+      // 自动化/触屏环境捕获失败时仍允许当前元素接收指针事件
+    }
+  };
+
+  const handleDragPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    const drag = dragStateRef.current;
+    if (!drag) return;
+
+    const dx = event.clientX - drag.startX;
+    const dy = event.clientY - drag.startY;
+
+    if (!drag.moved && Math.abs(dx) + Math.abs(dy) > 5) {
+      drag.moved = true;
+      isDraggingRef.current = true;
+    }
+    if (!drag.moved) return;
+
+    const maxLeft = Math.max(0, window.innerWidth - drag.width);
+    const maxTop = Math.max(0, window.innerHeight - drag.height);
+    const left = Math.min(Math.max(drag.baseX + dx, 0), maxLeft);
+    const top = Math.min(Math.max(drag.baseY + dy, 0), maxTop);
+
+    const nextOffset = { x: left - drag.baseX, y: top - drag.baseY };
+    dragOffsetRef.current = nextOffset;
+    setDragOffset(nextOffset);
+  };
+
+  const finishDrag = (event: React.PointerEvent<HTMLDivElement>) => {
+    const drag = dragStateRef.current;
+    if (!drag) return;
+
+    try {
+      event.currentTarget.releasePointerCapture?.(drag.pointerId);
+    } catch {
+      // 指针已释放时忽略
+    }
+
+    dragStateRef.current = null;
+    setIsDragging(false);
+
+    if (drag.moved) {
+      try {
+        window.localStorage.setItem('cybercat-offset', JSON.stringify(dragOffsetRef.current));
+      } catch {
+        // 隐私模式或存储已满时忽略
+      }
+      // 拖动结束后短暂抑制 click，避免刚拖完又触发“摸猫猫”
+      window.setTimeout(() => {
+        isDraggingRef.current = false;
+      }, 80);
+    }
+  };
+
+  // 读取上次拖动位置；刷新后仍停在原处，并按当前视口做一次边界收敛。
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(window.localStorage.getItem('cybercat-offset') || 'null') as
+        | { x?: unknown; y?: unknown }
+        | null;
+      if (!saved || typeof saved.x !== 'number' || typeof saved.y !== 'number') return;
+
+      const outer = outerRef.current;
+      if (!outer) return;
+
+      const rect = outer.getBoundingClientRect();
+      const maxLeft = Math.max(0, window.innerWidth - rect.width);
+      const maxTop = Math.max(0, window.innerHeight - rect.height);
+      const left = Math.min(Math.max(rect.left + saved.x, 0), maxLeft);
+      const top = Math.min(Math.max(rect.top + saved.y, 0), maxTop);
+      const next = { x: left - rect.left, y: top - rect.top };
+
+      dragOffsetRef.current = next;
+      setDragOffset(next);
+    } catch {
+      // 读取失败时保持右下角默认位置
+    }
+  }, []);
 
   return (
     <motion.div
-      drag
-      dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-      dragElastic={0.1}
-      whileDrag={{ scale: 1.1, cursor: "grabbing" }}
-      className="fixed bottom-20 right-20 z-[9999] flex flex-col items-center group cursor-grab active:cursor-grabbing"
+      ref={outerRef}
+      style={{ transform: `translate3d(${dragOffset.x}px, ${dragOffset.y}px, 0)` }}
+      className="fixed bottom-20 right-20 z-[9999] flex flex-col items-center group"
     >
       {/* 💬 聊天气泡 */}
       <div className="relative w-full flex justify-center mb-6">
@@ -167,8 +283,14 @@ export default function CyberCat() {
 
         {/* 猫咪图片容器 */}
         <div
-          className="w-[120px] h-[120px] relative cursor-pointer"
+          className={`relative h-[120px] w-[120px] cursor-grab touch-none select-none transition-transform active:cursor-grabbing ${
+            isDragging ? 'scale-105' : 'scale-100'
+          }`}
           onClick={handlePetCat}
+          onPointerDown={handleDragPointerDown}
+          onPointerMove={handleDragPointerMove}
+          onPointerUp={finishDrag}
+          onPointerCancel={finishDrag}
         >
           <style>{`
             .cat-sprite {
