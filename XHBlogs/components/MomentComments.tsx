@@ -18,9 +18,13 @@ export default function MomentComments({ id }: MomentCommentsProps) {
     // 清空重载，防止 React 严格模式下重复渲染
     containerRef.current.innerHTML = '';
 
+    // Gitalk 的 OAuth client secret 无法在浏览器里保密，填真实值等于公开。
+    // 这里不再把它交给访客；彻底方案是把换 token 放到服务端。
+    if (!siteConfig.gitalkConfig.clientID) return;
+
     const gitalk = new Gitalk({
       clientID: siteConfig.gitalkConfig.clientID,
-      clientSecret: siteConfig.gitalkConfig.clientSecret,
+      clientSecret: '',
       repo: siteConfig.gitalkConfig.repo,
       owner: siteConfig.gitalkConfig.owner,
       admin: siteConfig.gitalkConfig.admin,
