@@ -1,3 +1,7 @@
+# Version 0.4.4 - Windows Startup and Legacy Upgrade Fixes
+
+The updater restores Daily Briefing modules omitted by older versions. If you see a `Module not found` error after upgrading, close the local console and site, replace the root-level `update.bat` and `update.py` with the latest copies from the official repository, and run `update.bat` again. Existing posts, friend links, and personal settings are preserved. Windows startup errors remain visible; errors after entering the Python startup process are also saved to `my-blog-manager/startup.log`.
+
 # Version 0.4.1 - Wallpaper and Editor Improvements
 
 Includes 0.4.0 Daily Briefing plus wallpaper groups (PR #25, original commit author Kai) and GFM table/code-block improvements (PR #15, original commit author ILoveFurina). Original commits and maintainer fixes are retained. Empty wallpaper groups, special-character configuration round trips, literal prose characters, strikethrough, code formatting and fenced-code table-of-contents handling have been corrected. See UpdateLog.md and the Chinese README for details.
@@ -59,7 +63,7 @@ This guide will take you from scratch to deploy and use XHBlogs.
 
 Before starting, please ensure your computer has the following runtime environments installed; otherwise, the program will not start properly:
 
-* **Node.js** (v18.x or above recommended)
+* **Node.js** (v20.9 or newer)
 * **Package Manager** (npm)
 * **Git** (for pulling code and version control)
 * **Python** (v3.10 or above recommended; tested under v3.10)
@@ -81,7 +85,9 @@ Step 1: Obtain the lossless updater (only required for the first time)
 As shown below:
 
 
-#### 3. Double-click the update.bat file to update. If it crashes, please run the update.py file using CMD.
+#### 3. Close the running console and site, then double-click `update.bat`.
+
+If an older updater left you with a `Module not found` error, replace both updater files with the latest ones from the official repository and run the update again. The updater backs up replaced files in `.update-backups` and leaves your Git remotes and commits unchanged. If npm fails, fix the reported error and rerun the updater.
 
 ### 3. Quick Start
 

@@ -1,65 +1,81 @@
-import os
-import sys
-import subprocess
+"""Prepare the source console and keep a readable log of startup failures."""
 import importlib.util
+import os
+from pathlib import Path
+import re
+import shutil
+import subprocess
+import sys
+import traceback
 
-# 1. 后端 Python 依赖清单
-PYTHON_PACKAGES = {
-    "webview": "pywebview",
-    "fastapi": "fastapi",
-    "uvicorn": "uvicorn",
-    "multipart": "python-multipart",
-    "requests": "requests",
-    "yaml": "PyYAML",
-    "markdown": "markdown",
-    "markdownify": "markdownify",
-    "httpx": "httpx",
+ROOT = Path(__file__).resolve().parent
+PACKAGES = {
+    "webview": "pywebview", "fastapi": "fastapi", "uvicorn": "uvicorn",
+    "multipart": "python-multipart", "requests": "requests", "yaml": "PyYAML",
+    "markdown": "markdown", "markdownify": "markdownify", "httpx": "httpx",
 }
 
 
-def check_node_environment():
-    """检查前端环境：是否存在 node_modules，不存在则自动安装"""
-    print("🔍 正在检查前端依赖 (Node.js)...")
+def main(log):
+    def report(message):
+        print(message, flush=True)
+        print(message, file=log, flush=True)
 
-    # 检查当前目录下是否有 node_modules 文件夹
-    if not os.path.exists("node_modules"):
-        print("📦 发现缺失前端依赖，正在尝试运行 npm install (请稍候，这可能需要几分钟)...")
-        try:
-            # shell=True 在 Windows 下运行 npm 必须加上
-            subprocess.check_call(["npm", "install"], shell=True)
-            print("✅ 前端依赖安装成功！")
-        except Exception as e:
-            print(f"❌ 前端安装失败！请确保你安装了 Node.js。错误: {e}")
-            return False
-    else:
-        print("✅ 前端依赖已就绪。")
-    return True
+    def run(args):
+        env = os.environ.copy()
+        env.update(PYTHONIOENCODING="utf-8", PYTHONUNBUFFERED="1")
+        shell = os.name == "nt" and Path(args[0]).suffix.lower() in {".cmd", ".bat"}
+        with subprocess.Popen(
+            args, cwd=ROOT, env=env, shell=shell, stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT, encoding="utf-8", errors="replace",
+        ) as child:
+            for line in child.stdout:
+                report(line.rstrip("\r\n"))
+            code = child.wait()
+            if code:
+                raise RuntimeError(f"{Path(args[0]).name} exited with code {code}")
 
+    report(f"Python {sys.version.split()[0]}: {sys.executable}")
+    if sys.version_info < (3, 10):
+        raise RuntimeError("Python 3.10 or newer is required.")
+    node = shutil.which("node")
+    if not node:
+        raise RuntimeError("Node.js 20.9 or newer is required. Add it to PATH.")
+    version = subprocess.check_output([node, "--version"], text=True).strip()
+    match = re.fullmatch(r"v(\d+)\.(\d+)\.(\d+).*", version)
+    if not match or tuple(map(int, match.groups())) < (20, 9, 0):
+        raise RuntimeError(f"Node.js 20.9 or newer is required; found {version}.")
+    report(f"Node.js {version}: {node}")
 
-def check_python_environment():
-    """检查后端 Python 环境"""
-    print("🔍 正在检查后端依赖 (Python)...")
-    python_exe = sys.executable
-    for import_name, install_name in PYTHON_PACKAGES.items():
-        if importlib.util.find_spec(import_name) is None:
-            print(f"📦 正在自动安装 Python 库: {install_name}...")
-            subprocess.check_call([python_exe, "-m", "pip", "install", install_name])
-    print("✅ 后端依赖已就绪。")
-    return True
+    if not (ROOT / "node_modules/next/dist/bin/next").is_file():
+        npm = shutil.which("npm.cmd" if os.name == "nt" else "npm")
+        if not npm:
+            raise RuntimeError("npm is missing. Reinstall Node.js with npm.")
+        report("Installing console frontend dependencies...")
+        run([npm, "install"])
+        if not (ROOT / "node_modules/next/dist/bin/next").is_file():
+            raise RuntimeError("Next.js is still missing after npm install.")
+
+    missing = [pkg for module, pkg in PACKAGES.items() if importlib.util.find_spec(module) is None]
+    if missing:
+        report("Installing Python dependencies: " + ", ".join(missing))
+        run([sys.executable, "-m", "pip", "install", *missing])
+
+    report("Starting the console...")
+    # Keep this process attached to Start.bat so a child crash cannot look like success.
+    run([sys.executable, "-u", str(ROOT / "launcher.py")])
 
 
 if __name__ == "__main__":
-    # 强制切换到脚本所在目录
-    os.chdir(os.path.dirname(os.path.abspath(__file__)))
-
-    print("🌟 --- 星辉云端控制台 · 自动部署系统 --- 🌟")
-
-    # 先查前端，再查后端
-    if check_node_environment() and check_python_environment():
-        print("\n🚀 所有环境准备就绪，正在点火启动...")
-        # 启动 launcher.py
-        subprocess.Popen([sys.executable, "launcher.py"],
-                         creationflags=subprocess.CREATE_NEW_CONSOLE if os.name == 'nt' else 0)
-    else:
-        print("\n⚠️ 环境检查未通过，请根据报错信息手动处理。")
-        input("按回车键退出...")
+    log_path = ROOT / "startup.log"
+    try:
+        with log_path.open("w", encoding="utf-8", buffering=1) as log:
+            try:
+                main(log)
+            except Exception:
+                traceback.print_exc(file=log)
+                raise
+    except Exception as error:
+        print(f"Startup failed: {error}", file=sys.stderr)
+        print(f"Startup log (if writable): {log_path}", file=sys.stderr)
+        raise SystemExit(1)

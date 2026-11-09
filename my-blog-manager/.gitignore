@@ -26,6 +26,7 @@ node_modules/
 
 # debug
 npm-debug.log*
+/startup.log
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*

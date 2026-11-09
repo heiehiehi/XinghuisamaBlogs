@@ -1,55 +1,57 @@
 @echo off
-chcp 65001 >nul 2>&1  :: 解决中文乱码问题
-cd /d "%~dp0"
+setlocal EnableExtensions DisableDelayedExpansion
+set "status=1"
+pushd "%~dp0" || goto folder_error
+set "PYTHONUTF8=1"
+if not exist "run_me.py" goto missing_script
 
+rem Test the actual interpreter; do not parse localized version output.
+set "version_check=import sys; sys.exit(0 if sys.version_info >= (3,10) else 1)"
+where.exe py.exe >nul 2>&1
+if errorlevel 1 goto find_python
+py -3.10 -c "%version_check%" >nul 2>&1
+if not errorlevel 1 goto run_py310
+py -3 -c "%version_check%" >nul 2>&1
+if not errorlevel 1 goto run_py3
 
-echo [调试] 脚本所在目录：%~dp0
-echo [调试] 开始检测Python环境...
-
-:: 1. 优先尝试 py -3.10（兼容多Python版本）
-py -3.10 --version >nul 2>&1
-if %errorlevel% equ 0 (
-    echo [状态] 正在调用 Python 3.10 环境...
-    py -3.10 run_me.py
-    if %errorlevel% neq 0 (
-        echo ❌ 错误：Python 3.10 执行 run_me.py 失败！
-        pause
-        exit /b 1
-    )
-    goto end
-)
-
-:: 2. 尝试直接调用 python（检测是否是3.10+）
-python --version >nul 2>&1
-if %errorlevel% equ 0 (
-    :: 额外检测Python版本是否≥3.10
-    for /f "tokens=2 delims=." %%i in ('python --version 2^>^&1') do set "py_major=%%i"
-    for /f "tokens=3 delims=. " %%j in ('python --version 2^>^&1') do set "py_minor=%%j"
-    if %py_major% equ 3 if %py_minor% geq 10 (
-        echo [状态] 正在调用默认 Python 3.10+ 环境...
-        python run_me.py
-        if %errorlevel% neq 0 (
-            echo ❌ 错误：默认Python执行 run_me.py 失败！
-            pause
-            exit /b 1
+:find_python
+for /f "delims=" %%P in ('where.exe python.exe python3.exe 2^>nul') do (
+    if /i not "%%~dpP"=="%LOCALAPPDATA%\Microsoft\WindowsApps\" (
+        "%%P" -c "%version_check%" >nul 2>&1
+        if not errorlevel 1 (
+            set "python_path=%%P"
+            goto run_path
         )
-        goto end
-    ) else (
-        echo ❌ 错误：默认Python版本不是3.10！当前版本：
-        python --version
-        pause
-        exit /b 1
     )
 )
+echo [ERROR] Python 3.10 or newer is required. Install it from python.org.
+goto finish
 
-:: 3. 兜底：未找到Python环境
-echo ❌ 错误：未找到 Python 3.10 环境，请确保已安装并添加到系统PATH！
-echo 🔍 排查步骤：
-echo    1. 确认安装Python 3.10（官网：https://www.python.org/downloads/release/python-3100/）
-echo    2. 安装时勾选 "Add Python 3.10 to PATH"
-echo    3. 重启命令行/电脑后重试
-pause
+:run_py310
+py -3.10 -u "run_me.py"
+goto save_status
 
-:end
-echo ✅ 程序执行完成
-exit /b 0
+:run_py3
+py -3 -u "run_me.py"
+goto save_status
+
+:run_path
+"%python_path%" -u "run_me.py"
+
+:save_status
+set "status=%errorlevel%"
+if not "%status%"=="0" echo [ERROR] Console startup failed with exit code %status%.
+goto finish
+
+:missing_script
+echo [ERROR] Missing run_me.py. Keep this script in the original project directory.
+
+:finish
+popd
+if not "%~1"=="--no-pause" if not "%status%"=="0" pause
+exit /b %status%
+
+:folder_error
+echo [ERROR] Could not open the project directory.
+if not "%~1"=="--no-pause" pause
+exit /b 1
