@@ -1,3 +1,9 @@
+# Version 0.4.5 - Pet Selection and Markdown Sanitization
+
+In the local console, open Settings → Pet Display to choose CyberCat or Big Fish. Upgraded sites keep CyberCat by default. Big Fish supports dragging, size options, shared manual AI chat, optional browser-local tasks, and optional preset remarks that do not call AI.
+
+Markdown for public posts, chatter pages, and the About page now filters unsafe HTML and links. Source files remain untouched; some hand-written HTML may display differently. Thanks to [Kai0809v (PR #30)](https://github.com/heiehiehi/XinghuisamaBlogs/pull/30) and [Lumid0uce (PR #32)](https://github.com/heiehiehi/XinghuisamaBlogs/pull/32).
+
 # Version 0.4.4 - Windows Startup and Legacy Upgrade Fixes
 
 The updater restores Daily Briefing modules omitted by older versions. If you see a `Module not found` error after upgrading, close the local console and site, replace the root-level `update.bat` and `update.py` with the latest copies from the official repository, and run `update.bat` again. Existing posts, friend links, and personal settings are preserved. Windows startup errors remain visible; errors after entering the Python startup process are also saved to `my-blog-manager/startup.log`.

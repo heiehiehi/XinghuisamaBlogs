@@ -12,7 +12,13 @@
 
 ## 写在前面
 
-### 博客宠物展示（预览分支）
+### 当前版本：0.4.5（2026-11-11）
+
+- **宠物展示**：控制台可在煤球与大肥鱼间切换。升级后默认仍显示煤球。
+- **Markdown 净化**：博客文章、杂谈详情与关于页会过滤危险 HTML 和链接，保留常用排版。文章原文不变，旧内容里的部分手写 HTML 样式可能显示不同。
+- 感谢 [Kai0809v（PR #30）](https://github.com/heiehiehi/XinghuisamaBlogs/pull/30) 的网页宠物贡献与 [Lumid0uce（PR #32）](https://github.com/heiehiehi/XinghuisamaBlogs/pull/32) 的 Markdown 净化贡献。
+
+### 博客宠物展示
 
 在本机控制台打开 **设置 → 宠物展示**，选择煤球或大肥鱼，再点「保存到本地博客」。旧站默认保留煤球。保存只更改所选网站的 `data/petSelection.json`，不需要整站同步；线上生效仍需按原流程部署。
 
@@ -24,7 +30,7 @@
 
 大肥鱼的待机和点击动画由 [Kai0809v 在 PR #30](https://github.com/heiehiehi/XinghuisamaBlogs/pull/30) 提供，素材来自 [dsh-pet](https://github.com/PC2005-cloud/dsh-pet)，素材许可和署名见 [动画素材说明](XHBlogs/public/pets/xhblogs-big-fish/ATTRIBUTION.txt)。
 
-### 当前版本：0.4.4（2026-11-09）
+### 0.4.4 更新（2026-11-09）
 
 - **旧版升级修复**：补齐旧更新器遗漏的每日选刊模块。若升级后提示 `Module not found`，关闭本地控制台和网站，用官方仓库最新版的 `update.bat` 和 `update.py` 替换项目根目录中的同名文件，再运行一次 `update.bat`。
 - **Windows 启动修复**：`Start.bat` 会验证可用的 Python 环境，启动失败时保留错误窗口；进入启动流程后的详细错误会写入 `my-blog-manager/startup.log`。
