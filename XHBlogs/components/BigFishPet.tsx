@@ -16,10 +16,32 @@ const positionKey = 'xhblogs:big-fish:position';
 const todosKey = 'xhblogs:big-fish:todos';
 const whispers = ['累了就歇一会儿吧。', '咕噜咕噜，记得喝水！', '慢慢来，今天也有进展。', '我就在这里陪你。'];
 const clamp = (value: number) => Math.min(1, Math.max(0, value));
-const buttonStyle = 'rounded-xl border border-slate-200 bg-white/95 px-3 py-2 text-sm font-bold text-indigo-700 shadow dark:border-slate-700 dark:bg-slate-800 dark:text-indigo-200';
 const panelStyle = 'absolute w-72 max-w-[calc(100vw-2rem)] rounded-2xl border border-slate-200 bg-white p-3 text-slate-800 shadow-xl dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100';
 const inputStyle = 'min-w-0 flex-1 rounded-lg border border-slate-300 bg-transparent px-2 py-1.5 text-sm dark:border-slate-600';
 const submitStyle = 'rounded-lg bg-indigo-600 px-3 text-sm font-bold text-white disabled:opacity-50';
+
+function PetAction({ kind, expanded, onClick }: { kind: 'chat' | 'todo'; expanded: boolean; onClick: () => void }) {
+  const label = (expanded ? '关闭' : '') + (kind === 'chat' ? '聊天' : '待办');
+  return (
+    <button type="button" onClick={onClick} aria-label={label} aria-expanded={expanded}
+      aria-controls={expanded ? 'big-fish-' + kind : undefined}
+      className={'group relative grid h-11 w-11 place-items-center rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 '
+        + (expanded ? 'bg-indigo-500 text-white shadow-sm shadow-indigo-500/40'
+          : 'text-slate-600 hover:bg-indigo-100 hover:text-indigo-700 dark:text-slate-200 dark:hover:bg-indigo-400/20 dark:hover:text-white')}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"
+        aria-hidden="true" className="h-[19px] w-[19px]">
+        {kind === 'chat' ? (
+          <path d="M20.5 11.5a7.5 7.5 0 0 1-7.5 7.5H8.8l-4.3 2v-5.2A7.5 7.5 0 0 1 10 4h3a7.5 7.5 0 0 1 7.5 7.5ZM8.5 10h7M8.5 13h4" />
+        ) : (
+          <path d="M9 5H6.5A1.5 1.5 0 0 0 5 6.5v13A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5v-13A1.5 1.5 0 0 0 17.5 5H15M9 11l1.25 1.25L12.5 10m1.75 2h1.5m-6.75 4h6.75M10 3h4a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z" />
+        )}
+      </svg>
+      <span aria-hidden="true" className="pointer-events-none absolute right-full mr-2 hidden whitespace-nowrap rounded-lg bg-slate-900 px-2 py-1 text-xs font-medium text-white shadow-sm group-hover:block group-focus-visible:block">
+        {label}
+      </span>
+    </button>
+  );
+}
 
 function readLocal(key: string): unknown {
   try { return JSON.parse(localStorage.getItem(key) ?? 'null'); } catch { return null; }
@@ -187,11 +209,10 @@ export default function BigFishPet({ preferences }: { preferences: Preferences }
         {preferences.whisperEnabled && !panel && !dragging && whisper && (
           <p role="status" className={panelStyle + ' pointer-events-none text-sm ' + placement} style={panelPosition}>{whisper}</p>
         )}
-        <div className="absolute left-0 top-0 z-10 flex gap-2">
-          <button type="button" onClick={() => togglePanel('chat')} aria-expanded={panel === 'chat'}
-            aria-controls={panel === 'chat' ? 'big-fish-chat' : undefined} className={buttonStyle}>{panel === 'chat' ? '关闭聊天' : '聊天'}</button>
-          {preferences.todoEnabled && <button type="button" onClick={() => togglePanel('todo')} aria-expanded={panel === 'todo'}
-            aria-controls={panel === 'todo' ? 'big-fish-todo' : undefined} className={buttonStyle}>{panel === 'todo' ? '关闭待办' : '待办'}</button>}
+        <div role="group" aria-label="大肥鱼快捷操作"
+          className="absolute right-[5%] top-1/2 z-10 flex -translate-y-1/2 flex-col gap-0.5 rounded-full border border-white/70 bg-white/85 p-1 shadow-lg shadow-slate-950/10 backdrop-blur-md dark:border-white/15 dark:bg-slate-900/75">
+          <PetAction kind="chat" expanded={panel === 'chat'} onClick={() => togglePanel('chat')} />
+          {preferences.todoEnabled && <PetAction kind="todo" expanded={panel === 'todo'} onClick={() => togglePanel('todo')} />}
         </div>
         <button type="button" aria-label="摸摸大肥鱼，也可以拖动" title="按住大肥鱼可以拖动"
           onPointerDown={startDrag} onPointerMove={moveDrag} onPointerUp={finishDrag}
