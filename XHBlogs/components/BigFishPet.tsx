@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent, type PointerEvent } from 'react';
 import { requestPetReply } from '../lib/petChat';
+import BigFishAnimation from './BigFishAnimation';
 
 type Position = { x: number; y: number };
 type Todo = { id: string; text: string; done: boolean };
@@ -51,8 +52,7 @@ function saveLocal(key: string, value: unknown) {
 }
 
 export default function BigFishPet({ preferences }: { preferences: Preferences }) {
-  const [playing, setPlaying] = useState(false);
-  const [unavailable, setUnavailable] = useState(false);
+  const [reaction, setReaction] = useState(0);
   const [panel, setPanel] = useState<'chat' | 'todo' | null>(null);
   const [message, setMessage] = useState('');
   const [reply, setReply] = useState('');
@@ -217,17 +217,9 @@ export default function BigFishPet({ preferences }: { preferences: Preferences }
         <button type="button" aria-label="摸摸大肥鱼，也可以拖动" title="按住大肥鱼可以拖动"
           onPointerDown={startDrag} onPointerMove={moveDrag} onPointerUp={finishDrag}
           onPointerCancel={finishDrag} onLostPointerCapture={finishDrag}
-          onClick={event => { if (event.detail === 0 || !moved.current) setPlaying(true); }}
+          onClick={event => { if (event.detail === 0 || !moved.current) setReaction(previous => previous + 1); }}
           className="grid h-full w-full touch-none select-none place-items-center overflow-hidden rounded-2xl cursor-grab active:cursor-grabbing focus-visible:outline-2 focus-visible:outline-indigo-500">
-          <span className="hidden rounded-xl bg-white/90 px-3 py-2 text-sm text-slate-800 motion-reduce:block">大肥鱼</span>
-          {unavailable ? (
-            <span className="rounded-xl bg-white/90 px-3 py-2 text-sm text-slate-800 motion-reduce:hidden">大肥鱼</span>
-          ) : (
-            <video key={playing ? 'happy' : 'idle'} className={'pointer-events-none h-full w-full object-contain motion-reduce:hidden' + (size === 'regular' ? '' : ' scale-125')}
-              src={playing ? '/pets/xhblogs-big-fish/happy.webm' : '/pets/xhblogs-big-fish/idle.webm'}
-              autoPlay muted playsInline loop={!playing} aria-hidden="true"
-              onEnded={() => setPlaying(false)} onError={() => playing ? setPlaying(false) : setUnavailable(true)} />
-          )}
+          <BigFishAnimation reaction={reaction} enlarged={size !== 'regular'} />
         </button>
       </div>
     </div>
