@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 
 const options = [
   { id: 'coal', name: '煤球', description: '保留博客原有的煤球及其交互。' },
-  { id: 'big-fish', name: '大肥鱼', description: '显示大肥鱼，点击播放回应动画。' },
+  { id: 'big-fish', name: '大肥鱼', description: '支持点击动画和聊天，沿用煤球的 AI 设置。' },
 ] as const;
 type Pet = typeof options[number]['id'];
 

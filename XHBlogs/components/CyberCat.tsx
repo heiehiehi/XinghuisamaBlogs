@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { requestPetReply } from '../lib/petChat';
 
 export default function CyberCat() {
   const [isPetted, setIsPetted] = useState(false);
@@ -41,16 +42,8 @@ export default function CyberCat() {
     speak("嗷呜！真好吃喵！本喵吃饱了要说两句...", 6000);
 
     try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: "我刚刚喂了你一条美味的小鱼干！你有什么表示？" }),
-      });
-
-      if (!res.ok) throw new Error('API Error');
-
-      const data = await res.json();
-      speak(data.reply, 8000);
+      const reply = await requestPetReply("我刚刚喂了你一条美味的小鱼干！你有什么表示？");
+      speak(reply, 8000);
     } catch (error) {
       speak("吧唧吧唧... 鱼干好吃，但本喵卡壳了喵...", 4000);
     } finally {
@@ -70,16 +63,8 @@ export default function CyberCat() {
     speak("让本喵想想喵...", 10000);
 
     try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMessage }),
-      });
-
-      if (!res.ok) throw new Error('API Error');
-
-      const data = await res.json();
-      speak(data.reply, 8000);
+      const reply = await requestPetReply(userMessage);
+      speak(reply, 8000);
     } catch (error) {
       speak("铲屎官的网线被老鼠咬断了吧？喵！", 4000);
     } finally {
