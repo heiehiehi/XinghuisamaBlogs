@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import BriefingSection from '../../components/settings/BriefingSection';
+import PetDisplaySection from '../../components/settings/PetDisplaySection';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useOperations } from '../../context/OperationContext';
 import { siteConfig } from '../../siteConfig';
@@ -30,7 +31,7 @@ function SettingsContent() {
   useEffect(() => {
     const readTab = () => {
       const tab = new URLSearchParams(window.location.search).get('tab');
-      if (tab && ['profile', 'display', 'background', 'music', 'gallery', 'footer', 'danmaku', 'comment', 'aicat', 'repo', 'briefing'].includes(tab)) {
+      if (tab && ['profile', 'display', 'background', 'music', 'gallery', 'footer', 'danmaku', 'comment', 'aicat', 'repo', 'briefing', 'pets'].includes(tab)) {
         setActiveTab(tab);
         if (tab === 'briefing') setBriefingVisited(true);
       }
@@ -230,6 +231,7 @@ function SettingsContent() {
     { id: 'footer', name: '首页底部设置', icon: '🧩' },
     { id: 'danmaku', name: '全站弹幕设置', icon: '⚡' },
     { id: 'comment', name: '评论系统配置', icon: '💬' },
+    { id: 'pets', name: '宠物展示', icon: '🐾' },
     { id: 'aicat', name: 'AI 煤球配置', icon: '🐾' }, // 👈 新增的小猫设置
     { id: 'repo', name: '项目仓库设置', icon: '🚀' },
   ];
@@ -263,9 +265,10 @@ function SettingsContent() {
           </div>
 
           <div className="min-w-0 flex-1 w-full">
-            {backendMode !== 'live' && <div role="status" className="mb-6 rounded-2xl border border-amber-200/60 bg-amber-50/80 px-5 py-4 text-xs leading-7 text-amber-800 dark:border-amber-400/20 dark:bg-amber-950/40 dark:text-amber-200">{backendMode === 'checking' ? '正在检查本机连接…' : backendMode === 'preview' ? '当前是统一控制台的本地预览：每日选刊可以保存；其他原有栏目可只读查看。网站同步、发布和现有每日任务保持原样。' : '网站通用设置后台尚未连接，暂时只读。每日选刊使用自己的本机连接，可在该栏目检查状态。'}{backendMode === 'offline' && <button className="ml-3 underline" onClick={() => window.location.reload()}>重新检测</button>}</div>}
+            {activeTab !== 'pets' && backendMode !== 'live' && <div role="status" className="mb-6 rounded-2xl border border-amber-200/60 bg-amber-50/80 px-5 py-4 text-xs leading-7 text-amber-800 dark:border-amber-400/20 dark:bg-amber-950/40 dark:text-amber-200">{backendMode === 'checking' ? '正在检查本机连接…' : backendMode === 'preview' ? '当前是统一控制台的本地预览：每日选刊可以保存；其他原有栏目可只读查看。网站同步、发布和现有每日任务保持原样。' : '网站通用设置后台尚未连接，暂时只读。每日选刊使用自己的本机连接，可在该栏目检查状态。'}{backendMode === 'offline' && <button className="ml-3 underline" onClick={() => window.location.reload()}>重新检测</button>}</div>}
             {briefingVisited && <div hidden={activeTab !== 'briefing'}><BriefingSection /></div>}
-            <fieldset disabled={backendMode !== 'live'} hidden={activeTab === 'briefing'} className="min-w-0 w-full border-0 p-0">
+            {activeTab === 'pets' && <PetDisplaySection />}
+            <fieldset disabled={backendMode !== 'live'} hidden={activeTab === 'briefing' || activeTab === 'pets'} className="min-w-0 w-full border-0 p-0">
             <AnimatePresence mode="wait">
               {activeTab === 'profile' && <ProfileSection key="profile" formData={formData} handleUpdate={handleUpdate} pushToQueue={pushToQueue} />}
               {activeTab === 'display' && <DisplaySection key="display" showToast={showToast} />}

@@ -1,0 +1,13 @@
+大肥鱼 / Big Fish
+
+Original character and animation: dsh-pet (PC2005-cloud and contributors).
+Source: https://github.com/PC2005-cloud/dsh-pet
+Contributed to XHBlogs by Kai0809v in PR #30:
+https://github.com/heiehiehi/XinghuisamaBlogs/pull/30
+
+Animation assets: CC BY-NC-SA 4.0 (noncommercial).
+https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+idle.webm: 待机呼吸休闲.webm
+happy.webm: 点击回应-开心跃动.webm
+Files renamed; animation bytes unchanged.

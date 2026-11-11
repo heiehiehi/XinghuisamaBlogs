@@ -19,7 +19,7 @@ APPS = ("XHBlogs", "my-blog-manager")
 INITIAL_DATA = {
     "briefingConfig.json", "dailyBriefing.json", "dailyBriefingArchive.json",
     "dailyBriefingCovers.json", "dailyBriefing-history.json", "dailyBriefing.ts",
-    "terraReadingNotes.ts",
+    "terraReadingNotes.ts", "petSelection.json",
 }
 REQUIRED_BRIEFING = (
     "XHBlogs/lib/briefingWindow.ts",

@@ -62,6 +62,7 @@ class UpgradeTests(unittest.TestCase):
             personal = {
                 "XHBlogs/siteConfig.ts": b"local configuration",
                 "XHBlogs/data/dailyBriefing.json": b"local issue",
+                "XHBlogs/data/petSelection.json": b'{"activePet":"big-fish"}',
                 "XHBlogs/posts/post.md": b"local article",
                 "XHBlogs/data/friends.ts": b"local site friend links",
                 "my-blog-manager/data/friends.ts": b"local console friend links",
