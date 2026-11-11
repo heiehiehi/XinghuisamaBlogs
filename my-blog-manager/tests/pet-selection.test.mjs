@@ -19,7 +19,7 @@ function request(activePet, from = origin) {
   } : {
     method: 'POST',
     headers: { host, origin: from, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ activePet }),
+    body: JSON.stringify(typeof activePet === 'string' ? { activePet } : activePet),
   });
 }
 
@@ -47,17 +47,21 @@ test('switches either way on the configured blog and preserves existing content'
       await fs.mkdir(path.dirname(file), { recursive: true });
       await fs.writeFile(file, text);
     }
-    assert.deepEqual(await (await GET(request())).json(), { activePet: 'coal' });
+    const defaults = { todoEnabled: false, whisperEnabled: false, whisperMinutes: 5 };
+    assert.deepEqual(await (await GET(request())).json(), { activePet: 'coal', ...defaults });
     assert.equal((await POST(request('big-fish'))).status, 409);
     assert.equal((await POST(request('both'))).status, 400);
     assert.equal((await POST(request('coal', 'https://outside.example'))).status, 403);
     await fs.writeFile(path.join(assets, 'idle.webm'), 'idle fixture');
     await fs.writeFile(path.join(assets, 'happy.webm'), 'happy fixture');
+    const options = { todoEnabled: true, whisperEnabled: true, whisperMinutes: 1 };
+    assert.equal((await POST(request({ activePet: 'big-fish', whisperMinutes: 0 }))).status, 400);
+    assert.equal((await POST(request({ activePet: 'big-fish', ...options }))).status, 200);
     for (const activePet of ['big-fish', 'coal']) {
       const result = await POST(request(activePet));
       assert.equal(result.status, 200);
-      assert.deepEqual(await (await GET(request())).json(), { activePet });
-      assert.deepEqual(JSON.parse(await fs.readFile(config, 'utf8')), { activePet });
+      assert.deepEqual(await (await GET(request())).json(), { activePet, ...options });
+      assert.deepEqual(JSON.parse(await fs.readFile(config, 'utf8')), { activePet, ...options });
     }
     for (const [file, text] of preserved) assert.equal(await fs.readFile(file, 'utf8'), text);
   } finally {

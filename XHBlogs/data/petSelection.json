@@ -1,3 +1,6 @@
 {
-  "activePet": "coal"
+  "activePet": "coal",
+  "todoEnabled": false,
+  "whisperEnabled": false,
+  "whisperMinutes": 5
 }

@@ -8,6 +8,16 @@ const headers = { 'Cache-Control': 'no-store' };
 const reply = (body: unknown, status = 200) => Response.json(body, { status, headers });
 const localHost = /^(?:localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$/;
 const isMissing = (error: unknown) => (error as NodeJS.ErrnoException)?.code === 'ENOENT';
+const intervals = [1, 5, 10];
+
+function readPreferences(value: { activePet?: unknown; todoEnabled?: unknown; whisperEnabled?: unknown; whisperMinutes?: unknown } | null) {
+  return {
+    activePet: value?.activePet === 'big-fish' ? 'big-fish' : 'coal',
+    todoEnabled: value?.todoEnabled === true,
+    whisperEnabled: value?.whisperEnabled === true,
+    whisperMinutes: typeof value?.whisperMinutes === 'number' && intervals.includes(value.whisperMinutes) ? value.whisperMinutes : 5,
+  };
+}
 
 async function siteSelectionPath() {
   const root = path.resolve(process.env.XHS_MANAGER_ROOT || process.cwd());
@@ -26,7 +36,7 @@ export async function GET(request: Request) {
   try {
     const { filename } = await siteSelectionPath();
     const value = JSON.parse(await fs.readFile(filename, 'utf8'));
-    return reply({ activePet: value?.activePet === 'big-fish' ? 'big-fish' : 'coal' });
+    return reply(readPreferences(value));
   } catch {
     return reply({ detail: '找不到博客宠物配置。请检查仓库设置中的网站路径，并先更新网站源码。' }, 409);
   }
@@ -40,6 +50,11 @@ export async function POST(request: Request) {
   const data = await request.json().catch(() => null);
   const activePet: unknown = data?.activePet;
   if (activePet !== 'coal' && activePet !== 'big-fish') return reply({ detail: '请选择煤球或大肥鱼。' }, 400);
+  if ((data.todoEnabled !== undefined && typeof data.todoEnabled !== 'boolean')
+    || (data.whisperEnabled !== undefined && typeof data.whisperEnabled !== 'boolean')
+    || (data.whisperMinutes !== undefined && !intervals.includes(data.whisperMinutes))) {
+    return reply({ detail: '宠物功能选项无效。' }, 400);
+  }
 
   let temporary: string | undefined;
   try {
@@ -54,9 +69,11 @@ export async function POST(request: Request) {
       }
     }
     temporary = path.join(path.dirname(filename), `.pet-selection-${randomUUID()}.tmp`);
-    await fs.writeFile(temporary, JSON.stringify({ activePet }, null, 2) + '\n', { flag: 'wx' });
+    const prior = JSON.parse(await fs.readFile(filename, 'utf8'));
+    const preferences = readPreferences({ ...prior, ...data });
+    await fs.writeFile(temporary, JSON.stringify(preferences, null, 2) + '\n', { flag: 'wx' });
     await fs.rename(temporary, filename);
-    return reply({ activePet });
+    return reply(preferences);
   } catch {
     return reply({ detail: '未能保存。请确认博客目录已更新且可以写入。' }, 409);
   } finally {

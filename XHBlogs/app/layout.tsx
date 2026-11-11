@@ -130,7 +130,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             `}} />
           </MusicProvider>
 
-          {petSelection.activePet === 'big-fish' ? <BigFishPet /> : (
+          {petSelection.activePet === 'big-fish' ? <BigFishPet preferences={petSelection} /> : (
             <div data-site-pet="coal" className="hidden md:block">
               <CyberCat />
             </div>
