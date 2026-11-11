@@ -47,15 +47,16 @@ test('switches either way on the configured blog and preserves existing content'
       await fs.mkdir(path.dirname(file), { recursive: true });
       await fs.writeFile(file, text);
     }
-    const defaults = { todoEnabled: false, whisperEnabled: false, whisperMinutes: 5 };
+    const defaults = { todoEnabled: false, whisperEnabled: false, whisperMinutes: 5, bigFishSize: 'large' };
     assert.deepEqual(await (await GET(request())).json(), { activePet: 'coal', ...defaults });
     assert.equal((await POST(request('big-fish'))).status, 409);
     assert.equal((await POST(request('both'))).status, 400);
     assert.equal((await POST(request('coal', 'https://outside.example'))).status, 403);
     await fs.writeFile(path.join(assets, 'idle.webm'), 'idle fixture');
     await fs.writeFile(path.join(assets, 'happy.webm'), 'happy fixture');
-    const options = { todoEnabled: true, whisperEnabled: true, whisperMinutes: 1 };
+    const options = { todoEnabled: true, whisperEnabled: true, whisperMinutes: 1, bigFishSize: 'extra-large' };
     assert.equal((await POST(request({ activePet: 'big-fish', whisperMinutes: 0 }))).status, 400);
+    assert.equal((await POST(request({ activePet: 'big-fish', bigFishSize: 'invalid' }))).status, 400);
     assert.equal((await POST(request({ activePet: 'big-fish', ...options }))).status, 200);
     for (const activePet of ['big-fish', 'coal']) {
       const result = await POST(request(activePet));

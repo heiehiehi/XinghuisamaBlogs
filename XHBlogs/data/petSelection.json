@@ -1,6 +1,7 @@
 {
   "activePet": "coal",
   "todoEnabled": false,
+  "bigFishSize": "large",
   "whisperEnabled": false,
   "whisperMinutes": 5
 }

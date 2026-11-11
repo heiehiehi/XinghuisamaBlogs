@@ -20,6 +20,8 @@
 
 按住大肥鱼可以把它拖到窗口内任意位置。选择大肥鱼后，可在控制台分别开启「本地待办」和「定时碎碎念」。待办和宠物位置保存在访客自己的浏览器里；碎碎念默认关闭，开启后按所选间隔轮播固定台词，不调用 AI。
 
+在「大肥鱼功能 → 显示大小」可选标准、大号（默认）或特大号。
+
 大肥鱼的待机和点击动画由 [Kai0809v 在 PR #30](https://github.com/heiehiehi/XinghuisamaBlogs/pull/30) 提供，素材来自 [dsh-pet](https://github.com/PC2005-cloud/dsh-pet)，素材许可和署名见 [动画素材说明](XHBlogs/public/pets/xhblogs-big-fish/ATTRIBUTION.txt)。
 
 ### 当前版本：0.4.4（2026-11-09）

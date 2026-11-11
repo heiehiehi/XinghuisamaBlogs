@@ -9,11 +9,13 @@ const reply = (body: unknown, status = 200) => Response.json(body, { status, hea
 const localHost = /^(?:localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$/;
 const isMissing = (error: unknown) => (error as NodeJS.ErrnoException)?.code === 'ENOENT';
 const intervals = [1, 5, 10];
+const fishSizes = ['regular', 'large', 'extra-large'];
 
-function readPreferences(value: { activePet?: unknown; todoEnabled?: unknown; whisperEnabled?: unknown; whisperMinutes?: unknown } | null) {
+function readPreferences(value: { activePet?: unknown; todoEnabled?: unknown; whisperEnabled?: unknown; whisperMinutes?: unknown; bigFishSize?: unknown } | null) {
   return {
     activePet: value?.activePet === 'big-fish' ? 'big-fish' : 'coal',
     todoEnabled: value?.todoEnabled === true,
+    bigFishSize: typeof value?.bigFishSize === 'string' && fishSizes.includes(value.bigFishSize) ? value.bigFishSize : 'large',
     whisperEnabled: value?.whisperEnabled === true,
     whisperMinutes: typeof value?.whisperMinutes === 'number' && intervals.includes(value.whisperMinutes) ? value.whisperMinutes : 5,
   };
@@ -52,7 +54,8 @@ export async function POST(request: Request) {
   if (activePet !== 'coal' && activePet !== 'big-fish') return reply({ detail: '请选择煤球或大肥鱼。' }, 400);
   if ((data.todoEnabled !== undefined && typeof data.todoEnabled !== 'boolean')
     || (data.whisperEnabled !== undefined && typeof data.whisperEnabled !== 'boolean')
-    || (data.whisperMinutes !== undefined && !intervals.includes(data.whisperMinutes))) {
+    || (data.whisperMinutes !== undefined && !intervals.includes(data.whisperMinutes))
+    || (data.bigFishSize !== undefined && !fishSizes.includes(data.bigFishSize))) {
     return reply({ detail: '宠物功能选项无效。' }, 400);
   }
 

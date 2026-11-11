@@ -5,7 +5,12 @@ import { requestPetReply } from '../lib/petChat';
 
 type Position = { x: number; y: number };
 type Todo = { id: string; text: string; done: boolean };
-type Preferences = { todoEnabled?: boolean; whisperEnabled?: boolean; whisperMinutes?: number };
+type Preferences = { todoEnabled?: boolean; whisperEnabled?: boolean; whisperMinutes?: number; bigFishSize?: string };
+const fishSizes = {
+  regular: 'h-44 w-44 md:h-60 md:w-60',
+  large: 'h-56 w-56 md:h-80 md:w-80',
+  'extra-large': 'h-64 w-64 md:h-96 md:w-96',
+};
 const initialPosition = { x: 1, y: 1 };
 const positionKey = 'xhblogs:big-fish:position';
 const todosKey = 'xhblogs:big-fish:todos';
@@ -138,10 +143,11 @@ export default function BigFishPet({ preferences }: { preferences: Preferences }
 
   const placement = position.y >= 0.5 ? 'bottom-full mb-2' : 'top-full mt-2';
   const panelPosition = { left: position.x * 100 + '%', transform: 'translateX(' + (-position.x * 100) + '%)' };
+  const size = preferences.bigFishSize === 'regular' || preferences.bigFishSize === 'extra-large' ? preferences.bigFishSize : 'large';
 
   return (
     <div ref={region} className="pointer-events-none fixed inset-4 z-40">
-      <div ref={pet} data-site-pet="big-fish" className="pointer-events-auto absolute h-44 w-44 md:h-60 md:w-60"
+      <div ref={pet} data-site-pet="big-fish" className={'pointer-events-auto absolute max-h-full max-w-full ' + fishSizes[size]}
         style={{ left: position.x * 100 + '%', top: position.y * 100 + '%', transform: 'translate(' + (-position.x * 100) + '%,' + (-position.y * 100) + '%)' }}>
         {panel === 'chat' && (
           <form id="big-fish-chat" onSubmit={send} className={panelStyle + ' ' + placement} style={panelPosition}>
@@ -191,12 +197,12 @@ export default function BigFishPet({ preferences }: { preferences: Preferences }
           onPointerDown={startDrag} onPointerMove={moveDrag} onPointerUp={finishDrag}
           onPointerCancel={finishDrag} onLostPointerCapture={finishDrag}
           onClick={event => { if (event.detail === 0 || !moved.current) setPlaying(true); }}
-          className="grid h-full w-full touch-none select-none place-items-center rounded-2xl cursor-grab active:cursor-grabbing focus-visible:outline-2 focus-visible:outline-indigo-500">
+          className="grid h-full w-full touch-none select-none place-items-center overflow-hidden rounded-2xl cursor-grab active:cursor-grabbing focus-visible:outline-2 focus-visible:outline-indigo-500">
           <span className="hidden rounded-xl bg-white/90 px-3 py-2 text-sm text-slate-800 motion-reduce:block">大肥鱼</span>
           {unavailable ? (
             <span className="rounded-xl bg-white/90 px-3 py-2 text-sm text-slate-800 motion-reduce:hidden">大肥鱼</span>
           ) : (
-            <video key={playing ? 'happy' : 'idle'} className="pointer-events-none h-full w-full object-contain motion-reduce:hidden"
+            <video key={playing ? 'happy' : 'idle'} className={'pointer-events-none h-full w-full object-contain motion-reduce:hidden' + (size === 'regular' ? '' : ' scale-125')}
               src={playing ? '/pets/xhblogs-big-fish/happy.webm' : '/pets/xhblogs-big-fish/idle.webm'}
               autoPlay muted playsInline loop={!playing} aria-hidden="true"
               onEnded={() => setPlaying(false)} onError={() => playing ? setPlaying(false) : setUnavailable(true)} />

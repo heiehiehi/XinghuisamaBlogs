@@ -7,8 +7,10 @@ const options = [
   { id: 'big-fish', name: '大肥鱼', description: '支持点击动画和聊天，沿用煤球的 AI 设置。' },
 ] as const;
 type Pet = typeof options[number]['id'];
-type Preferences = { activePet: Pet; todoEnabled: boolean; whisperEnabled: boolean; whisperMinutes: number };
-const defaults: Preferences = { activePet: 'coal', todoEnabled: false, whisperEnabled: false, whisperMinutes: 5 };
+const sizes = [{ id: 'regular', label: '标准' }, { id: 'large', label: '大号' }, { id: 'extra-large', label: '特大号' }] as const;
+type FishSize = typeof sizes[number]['id'];
+type Preferences = { activePet: Pet; todoEnabled: boolean; whisperEnabled: boolean; whisperMinutes: number; bigFishSize: FishSize };
+const defaults: Preferences = { activePet: 'coal', todoEnabled: false, whisperEnabled: false, whisperMinutes: 5, bigFishSize: 'large' };
 
 export default function PetDisplaySection() {
   const [saved, setSaved] = useState<Preferences | null>(null);
@@ -78,6 +80,13 @@ export default function PetDisplaySection() {
       {selection.activePet === 'big-fish' && (
         <fieldset disabled={saved === null || saving} className="mt-5 grid gap-3 rounded-xl border border-slate-300 p-4 text-sm dark:border-slate-700">
           <legend className="px-2 font-bold">大肥鱼功能</legend>
+          <label className="flex items-center gap-2">
+            显示大小
+            <select value={selection.bigFishSize} onChange={event => change({ bigFishSize: event.target.value as FishSize })}
+              className="rounded-lg border border-slate-300 bg-white px-2 py-1 dark:border-slate-700 dark:bg-slate-800">
+              {sizes.map(size => <option key={size.id} value={size.id}>{size.label}</option>)}
+            </select>
+          </label>
           <label className="flex items-center gap-2">
             <input type="checkbox" checked={selection.todoEnabled} onChange={event => change({ todoEnabled: event.target.checked })} className="accent-indigo-600" />
             本地待办
